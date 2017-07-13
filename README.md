@@ -1,0 +1,14 @@
+# dlcmp - download utility for curse mod packs
+### Features
+* Download mod pack archive and download the mods from the manifest.json  
+```
+$  dlcmp.py -d https://minecraft.curseforge.com/projects/invasion/files/2447205
+```
+* Download mods from already unzipped manifest  
+```
+$  dlcmp.py -m path/2/manifest.json
+```
+* If a mod site is unavailable, it will be skipped
+* If the file already exists, it will not be downloaded again  
+
+### Have fun
