@@ -87,7 +87,7 @@ def dl(manifest, do_log):
 	print('Catched \'em all!')
 	return
 
-def get_modpack(url, do_log):
+def get_modpack(url, do_log, user_agent):
 	print('\n(' + str(url) + ')')
 	print('Starting download...')
 	try:
@@ -96,7 +96,7 @@ def get_modpack(url, do_log):
 			to_file = ''
 		# Retrieving modpack
 		req = urllib.request.Request(url + to_file)
-		req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:37.0) Gecko/20100101 Firefox/37.0')
+		req.add_header('User-Agent', user_agent)
 		dl_mp = urllib.request.urlopen(req)
 		resp = dl_mp.read()
 		# Get the name for the file by getting the redirect from '/download' to 'someting/something.extenshion'
@@ -148,12 +148,14 @@ def main():
 	parser = argparse.ArgumentParser(description="dlcmp - download utility for curse mod packs")
 	parser.add_argument("-d", help="download modpack file (e.g. 'https://minecraft.curseforge.com/projects/invasion/files/2447205')")
 	parser.add_argument("-m", help="manifest.json file from unzipped pack")
+	parser.add_argument("--ua", help="User-Agent String")
 	parser.add_argument("-l", help="log failed requests", action='store_true')
+	parser.set_defaults(ua='Mozilla/5.0 (Windows NT 6.1; WOW64; rv:37.0) Gecko/20100101 Firefox/37.0')
 	parser.set_defaults(l=False)
 	args, unknown = parser.parse_known_args()
 	print('Log: ' + str(args.l))
 	if not args.d == None:
-		get_modpack(str(args.d), args.l)
+		get_modpack(str(args.d), args.l, args.ua)
 	if not args.m == None:
 		if not os.path.isfile(args.m):
 			print('No manifest found at %s' % args.m)
