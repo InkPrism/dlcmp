@@ -13,7 +13,12 @@ import posixpath
 import re
 import zipfile
 
-def dl(manifest):
+def log_failed(content):
+	from datetime import datetime
+	with open(str(datetime.now().date()) + '_dlcmp_failed.txt', 'a') as f:
+		f.write('(' + str(datetime.now().time()) + ') ' + content + '\n')
+
+def dl(manifest, do_log):
 	print('\n(' + str(manifest) + ')')
 	print('rtfm...')
 	# Concrete path
@@ -49,6 +54,8 @@ def dl(manifest):
 			projecturl = projectresp.geturl()
 		except:
 			print('Received a 404: ' + projecturl)
+			if do_log:
+				log_failed('Received a 404: ' + projecturl)
 			currF = currF + 1
 			continue
 		try:
@@ -57,6 +64,8 @@ def dl(manifest):
 			projectresp = urllib.request.urlopen(filepath)
 		except:
 			print('Received a 404: ' + projecturl)
+			if do_log:
+				log_failed('Received a 404: ' + projecturl)
 			currF = currF + 1
 			continue
 #		# Get fileName from header
@@ -78,7 +87,7 @@ def dl(manifest):
 	print('Catched \'em all!')
 	return
 
-def get_modpack(url):
+def get_modpack(url, do_log):
 	print('\n(' + str(url) + ')')
 	print('Starting download...')
 	try:
@@ -97,12 +106,16 @@ def get_modpack(url):
 		print('Downloading ' + filename)
 	except:
 		print('Could not open ' + url)
+		if do_log:
+			log_failed('Could not open ' + url)
 		return
 	try:
 		with open(filename, "wb") as f:
 			f.write(resp)
 	except:
 		print('Unable to write data from ' + str(url) + ' to ' + str(filename))
+		if do_log:
+			log_failed('Unable to write data from ' + str(url) + ' to ' + str(filename))
 		return
 	# Create new dir for extracted files
 	dirname = filename
@@ -119,6 +132,8 @@ def get_modpack(url):
 		os.makedirs(str(Path(dirname)))
 	except:
 		print('Unable to create ' + str(dirname))
+		if do_log:
+			log_failed('Unable to create ' + str(dirname))
 		return
 	# Unzip the retrieved file
 	zip_ref = zipfile.ZipFile(filename, 'r')
@@ -133,14 +148,17 @@ def main():
 	parser = argparse.ArgumentParser(description="dlcmp - download utility for curse mod packs")
 	parser.add_argument("-d", help="download modpack file (e.g. 'https://minecraft.curseforge.com/projects/invasion/files/2447205')")
 	parser.add_argument("-m", help="manifest.json file from unzipped pack")
+	parser.add_argument("-l", help="log failed requests", action='store_true')
+	parser.set_defaults(l=False)
 	args, unknown = parser.parse_known_args()
+	print('Log: ' + str(args.l))
 	if not args.d == None:
-		get_modpack(str(args.d))
+		get_modpack(str(args.d), args.l)
 	if not args.m == None:
 		if not os.path.isfile(args.m):
 			print('No manifest found at %s' % args.m)
 			return
-		dl(args.m)
+		dl(args.m, args.l)
 
 if __name__ == '__main__':
 	main()
