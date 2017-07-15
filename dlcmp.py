@@ -13,10 +13,12 @@ import posixpath
 import re
 import zipfile
 
-def log_failed(content):
-	from datetime import datetime
-	with open(str(datetime.now().date()) + '_dlcmp_failed.txt', 'a') as f:
-		f.write('(' + str(datetime.now().time()) + ') ' + content + '\n')
+def log_failed(content, do_log):
+	print(content)
+	if do_log:
+		from datetime import datetime
+		with open(str(datetime.now().date()) + '_dlcmp_failed.txt', 'a') as f:
+			f.write('(' + str(datetime.now().time()) + ') ' + content + '\n')
 def req(url, ua_head):
 	req = urllib.request.Request(url)
 	req.add_header('User-Agent', ua_head)
@@ -57,9 +59,7 @@ def dl(manifest, do_log, user_agent):
 			projectresp = urllib.request.urlopen(req(projecturl, user_agent))
 			projecturl = projectresp.geturl()
 		except:
-			print('Received a 404: ' + projecturl)
-			if do_log:
-				log_failed('Received a 404: ' + projecturl)
+			log_failed('Received a 404: ' + projecturl, do_log)
 			currF = currF + 1
 			continue
 		try:
@@ -67,9 +67,7 @@ def dl(manifest, do_log, user_agent):
 			filepath = projecturl + '/files/' + str(dependency['fileID']) + '/download'
 			projectresp = urllib.request.urlopen(req(filepath, user_agent))
 		except:
-			print('Received a 404: ' + projecturl)
-			if do_log:
-				log_failed('Received a 404: ' + projecturl)
+			log_failed('Received a 404: ' + projecturl, do_log)
 			currF = currF + 1
 			continue
 #		# Get fileName from header
@@ -107,17 +105,13 @@ def get_modpack(url, do_log, user_agent):
 		filename = posixpath.basename(dl_mp)
 		print('Downloading ' + filename)
 	except:
-		print('Could not open ' + url)
-		if do_log:
-			log_failed('Could not open ' + url)
+		log_failed('Could not open ' + url, do_log)
 		return
 	try:
 		with open(filename, "wb") as f:
 			f.write(resp)
 	except:
-		print('Unable to write data from ' + str(url) + ' to ' + str(filename))
-		if do_log:
-			log_failed('Unable to write data from ' + str(url) + ' to ' + str(filename))
+		log_failed('Unable to write data from ' + str(url) + ' to ' + str(filename), do_log)
 		return
 	# Create new dir for extracted files
 	dirname = filename
@@ -133,9 +127,7 @@ def get_modpack(url, do_log, user_agent):
 	try:
 		os.makedirs(str(Path(dirname)))
 	except:
-		print('Unable to create ' + str(dirname))
-		if do_log:
-			log_failed('Unable to create ' + str(dirname))
+		log_failed('Unable to create ' + str(dirname), do_log)
 		return
 	# Unzip the retrieved file
 	zip_ref = zipfile.ZipFile(filename, 'r')
