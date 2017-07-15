@@ -17,6 +17,10 @@ def log_failed(content):
 	from datetime import datetime
 	with open(str(datetime.now().date()) + '_dlcmp_failed.txt', 'a') as f:
 		f.write('(' + str(datetime.now().time()) + ') ' + content + '\n')
+def req(url, ua_head):
+	req = urllib.request.Request(url)
+	req.add_header('User-Agent', ua_head)
+	return req
 
 def dl(manifest, do_log, user_agent):
 	print('\n(' + str(manifest) + ')')
@@ -50,9 +54,7 @@ def dl(manifest, do_log, user_agent):
 		projecturl = 'http://minecraft.curseforge.com/mc-mods/' + str(dependency['projectID'])
 		try:
 			# We need a redirection
-			req = urllib.request.Request(projecturl)
-			req.add_header('User-Agent', user_agent)
-			projectresp = urllib.request.urlopen(req)
+			projectresp = urllib.request.urlopen(req(projecturl, user_agent))
 			projecturl = projectresp.geturl()
 		except:
 			print('Received a 404: ' + projecturl)
@@ -63,9 +65,7 @@ def dl(manifest, do_log, user_agent):
 		try:
 			# Open file URL
 			filepath = projecturl + '/files/' + str(dependency['fileID']) + '/download'
-			req = urllib.request.Request(filepath)
-			req.add_header('User-Agent', user_agent)
-			projectresp = urllib.request.urlopen(req)
+			projectresp = urllib.request.urlopen(req(filepath, user_agent))
 		except:
 			print('Received a 404: ' + projecturl)
 			if do_log:
@@ -99,9 +99,7 @@ def get_modpack(url, do_log, user_agent):
 		if url.endswith(to_file):
 			to_file = ''
 		# Retrieving modpack
-		req = urllib.request.Request(url + to_file)
-		req.add_header('User-Agent', user_agent)
-		dl_mp = urllib.request.urlopen(req)
+		dl_mp = urllib.request.urlopen(req(url + to_file, user_agent))
 		resp = dl_mp.read()
 		# Get the name for the file by getting the redirect from '/download' to 'someting/something.extenshion'
 		dl_mp = dl_mp.geturl()
@@ -146,7 +144,7 @@ def get_modpack(url, do_log, user_agent):
 	# Delete the retrieved file
 	os.remove(filename)
 	# And now go and download the files
-	dl(Path(dirname, 'manifest.json'))
+	dl(Path(dirname, 'manifest.json'), do_log, user_agent)
 
 def main():
 	parser = argparse.ArgumentParser(description="dlcmp - download utility for curse mod packs")
