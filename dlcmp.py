@@ -51,9 +51,14 @@ def dl(manifest):
 			print('Received a 404: ' + projecturl)
 			currF = currF + 1
 			continue
-		# Open file URL
-		filepath = projecturl + '/files/' + str(dependency['fileID']) + '/download'
-		projectresp = urllib.request.urlopen(filepath)
+		try:
+			# Open file URL
+			filepath = projecturl + '/files/' + str(dependency['fileID']) + '/download'
+			projectresp = urllib.request.urlopen(filepath)
+		except:
+			print('Received a 404: ' + projecturl)
+			currF = currF + 1
+			continue
 #		# Get fileName from header
 #		filename = projectresp.info()['Content-Disposition']
 		# Get filename
