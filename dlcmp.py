@@ -129,12 +129,20 @@ def get_modpack(url, do_log, user_agent):
 	except:
 		log_failed('Unable to create ' + str(dirname), do_log)
 		return
-	# Unzip the retrieved file
-	zip_ref = zipfile.ZipFile(filename, 'r')
-	zip_ref.extractall(str(Path(dirname)))
-	zip_ref.close()
-	# Delete the retrieved file
-	os.remove(filename)
+	try:
+		# Unzip the retrieved file
+		zip_ref = zipfile.ZipFile(filename, 'r')
+		zip_ref.extractall(str(Path(dirname)))
+		zip_ref.close()
+	except:
+		log_failed('Unable to extract files from ' + str(filename), do_log)
+		return
+	try:
+		# Delete the retrieved file
+		os.remove(filename)
+	except:
+		log_failed('Unable to remove ' + str(filename), do_log)
+		return
 	# And now go and download the files
 	dl(Path(dirname, 'manifest.json'), do_log, user_agent)
 
