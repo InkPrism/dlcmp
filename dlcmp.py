@@ -18,7 +18,7 @@ def log_failed(content):
 	with open(str(datetime.now().date()) + '_dlcmp_failed.txt', 'a') as f:
 		f.write('(' + str(datetime.now().time()) + ') ' + content + '\n')
 
-def dl(manifest, do_log):
+def dl(manifest, do_log, user_agent):
 	print('\n(' + str(manifest) + ')')
 	print('rtfm...')
 	# Concrete path
@@ -50,7 +50,9 @@ def dl(manifest, do_log):
 		projecturl = 'http://minecraft.curseforge.com/mc-mods/' + str(dependency['projectID'])
 		try:
 			# We need a redirection
-			projectresp = urllib.request.urlopen(projecturl)
+			req = urllib.request.Request(projecturl)
+			req.add_header('User-Agent', user_agent)
+			projectresp = urllib.request.urlopen(req)
 			projecturl = projectresp.geturl()
 		except:
 			print('Received a 404: ' + projecturl)
@@ -61,7 +63,9 @@ def dl(manifest, do_log):
 		try:
 			# Open file URL
 			filepath = projecturl + '/files/' + str(dependency['fileID']) + '/download'
-			projectresp = urllib.request.urlopen(filepath)
+			req = urllib.request.Request(filepath)
+			req.add_header('User-Agent', user_agent)
+			projectresp = urllib.request.urlopen(req)
 		except:
 			print('Received a 404: ' + projecturl)
 			if do_log:
