@@ -86,7 +86,9 @@ def get_modpack(url):
 		if url.endswith(to_file):
 			to_file = ''
 		# Retrieving modpack
-		dl_mp = urllib.request.urlopen(url + to_file)
+		req = urllib.request.Request(url + to_file)
+		req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:37.0) Gecko/20100101 Firefox/37.0')
+		dl_mp = urllib.request.urlopen(req)
 		resp = dl_mp.read()
 		# Get the name for the file by getting the redirect from '/download' to 'someting/something.extenshion'
 		dl_mp = dl_mp.geturl()
