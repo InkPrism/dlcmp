@@ -162,7 +162,7 @@ def main():
 		if not os.path.isfile(args.m):
 			print('No manifest found at %s' % args.m)
 			return
-		dl(args.m, args.l)
+		dl(args.m, args.l, args.ua)
 
 if __name__ == '__main__':
 	main()
