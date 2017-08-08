@@ -13,6 +13,12 @@ import posixpath
 import re
 import zipfile
 
+def getheader(resp, head):
+	try:
+		return resp.info()[head]
+	except:
+		return "-HeadNotFound-"
+
 def log_failed(content, do_log):
 	print(content)
 	if do_log:
@@ -24,7 +30,7 @@ def req(url, ua_head):
 	req.add_header('User-Agent', ua_head)
 	return req
 
-def dl(manifest, do_log, user_agent):
+def dl(manifest, do_log, user_agent, verbose):
 	print('\n(' + str(manifest) + ')')
 	print('rtfm...')
 	# Concrete path
@@ -79,6 +85,9 @@ def dl(manifest, do_log, user_agent):
 		filename = filename.replace('%20', ' ')
 		# Retrieve and write file
 		print('[' + str(currF) + '/' + str(allF) + '] ' + str(filename))
+		# Get file size from header if verbose is true
+		if verbose:
+			print(getheader(projectresp, "Content-Length") + " bytes.")
 		# If file is already exists, skip
 		if os.path.isfile(str(minecraftPath / "mods" / filename)):
 			print('SKIPPED')
@@ -89,7 +98,7 @@ def dl(manifest, do_log, user_agent):
 	print('Catched \'em all!')
 	return
 
-def get_modpack(url, do_log, user_agent):
+def get_modpack(url, do_log, user_agent, verbose):
 	print('\n(' + str(url) + ')')
 	print('Starting download...')
 	try:
@@ -144,25 +153,27 @@ def get_modpack(url, do_log, user_agent):
 		log_failed('Unable to remove ' + str(filename), do_log)
 		return
 	# And now go and download the files
-	dl(Path(dirname, 'manifest.json'), do_log, user_agent)
+	dl(Path(dirname, 'manifest.json'), do_log, user_agent, verbose)
 
 def main():
 	parser = argparse.ArgumentParser(description="dlcmp - download utility for curse mod packs")
 	parser.add_argument("-d", help="download modpack file (e.g. 'https://minecraft.curseforge.com/projects/invasion/files/2447205')")
 	parser.add_argument("-m", help="manifest.json file from unzipped pack")
 	parser.add_argument("--ua", help="User-Agent String")
+	parser.add_argument("-v", help="show verbose information", action='store_true')
 	parser.add_argument("-l", help="log failed requests", action='store_true')
 	parser.set_defaults(ua='Mozilla/5.0 (Windows NT 6.1; WOW64; rv:37.0) Gecko/20100101 Firefox/37.0')
+	parser.set_defaults(v=False)
 	parser.set_defaults(l=False)
 	args, unknown = parser.parse_known_args()
 	print('Log: ' + str(args.l))
 	if not args.d == None:
-		get_modpack(str(args.d), args.l, args.ua)
+		get_modpack(str(args.d), args.l, args.ua, args.v)
 	if not args.m == None:
 		if not os.path.isfile(args.m):
 			print('No manifest found at %s' % args.m)
 			return
-		dl(args.m, args.l, args.ua)
+		dl(args.m, args.l, args.ua, args.v)
 
 if __name__ == '__main__':
 	main()
