@@ -14,6 +14,7 @@ import re
 import zipfile
 
 def getheader(resp, head):
+	# Try to retrieve the specified header
 	try:
 		return resp.info()[head]
 	except:
@@ -63,7 +64,7 @@ def dl(manifest, do_log, user_agent, verbose):
 		try:
 			# We need a redirection
 			projectresp = urllib.request.urlopen(req(projecturl, user_agent))
-			projecturl = projectresp.geturl()
+			projecturl = projectresp.geturl() # (e. g. https://minecraft.curseforge.com/mc-mods/74924 -> https://minecraft.curseforge.com/projects/mantle)
 		except:
 			log_failed('Received a 404: ' + projecturl, do_log)
 			currF = currF + 1
