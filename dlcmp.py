@@ -6,7 +6,6 @@ import json
 from pathlib import Path
 import os
 import shutil
-import urllib
 import urllib.request
 import urllib.parse
 import posixpath
