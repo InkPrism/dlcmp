@@ -66,7 +66,7 @@ def dl(manifest, do_log, user_agent, verbose):
 			projectresp = urllib.request.urlopen(req(projecturl, user_agent))
 			projecturl = projectresp.geturl() # (e. g. https://minecraft.curseforge.com/mc-mods/74924 -> https://minecraft.curseforge.com/projects/mantle)
 		except:
-			log_failed('Received a 404: ' + projecturl, do_log)
+			log_failed('Unable to retrieve: ' + projecturl, do_log)
 			currF = currF + 1
 			continue
 		try:
@@ -74,7 +74,7 @@ def dl(manifest, do_log, user_agent, verbose):
 			filepath = projecturl + '/files/' + str(dependency['fileID']) + '/download'
 			projectresp = urllib.request.urlopen(req(filepath, user_agent))
 		except:
-			log_failed('Received a 404: ' + projecturl, do_log)
+			log_failed('Unable to retrieve: ' + projecturl, do_log)
 			currF = currF + 1
 			continue
 #		# Get fileName from header
