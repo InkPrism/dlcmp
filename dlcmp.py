@@ -64,16 +64,16 @@ def dl(manifest, do_log, user_agent, verbose):
 			# We need a redirection
 			projectresp = urllib.request.urlopen(req(projecturl, user_agent))
 			projecturl = projectresp.geturl() # (e. g. https://minecraft.curseforge.com/mc-mods/74924 -> https://minecraft.curseforge.com/projects/mantle)
-		except:
-			log_failed('Unable to retrieve: ' + projecturl, do_log)
+		except urllib.error.HTTPError as e:
+			log_failed(str(e.code) + ' - ' + projecturl, do_log)
 			currF = currF + 1
 			continue
 		try:
 			# Open file URL
 			filepath = projecturl + '/files/' + str(dependency['fileID']) + '/download'
 			projectresp = urllib.request.urlopen(req(filepath, user_agent))
-		except:
-			log_failed('Unable to retrieve: ' + projecturl, do_log)
+		except urllib.error.HTTPError as e:
+			log_failed(str(e.code) + ' - ' + projecturl, do_log)
 			currF = currF + 1
 			continue
 #		# Get fileName from header
@@ -113,8 +113,8 @@ def get_modpack(url, do_log, user_agent, verbose):
 		dl_mp = dl_mp.replace("%20", " ")
 		filename = posixpath.basename(dl_mp)
 		print('Downloading ' + filename)
-	except:
-		log_failed('Could not open ' + url, do_log)
+	except urllib.error.HTTPError as e:
+		log_failed(e + ' - ' + url, do_log)
 		return
 	try:
 		with open(filename, "wb") as f:
