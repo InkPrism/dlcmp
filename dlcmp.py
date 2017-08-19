@@ -151,7 +151,6 @@ def get_modpack(url, do_log, user_agent, verbose):
 		os.remove(filename)
 	except:
 		log_failed('Unable to remove ' + str(filename), do_log)
-		return
 	# And now go and download the files
 	dl(Path(dirname, 'manifest.json'), do_log, user_agent, verbose)
 
