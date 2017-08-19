@@ -66,7 +66,7 @@ def dl(manifest, do_log, user_agent, verbose):
 			projecturl = projectresp.geturl() # (e. g. https://minecraft.curseforge.com/mc-mods/74924 -> https://minecraft.curseforge.com/projects/mantle)
 		except urllib.error.HTTPError as e:
 			log_failed(str(e.code) + ' - ' + projecturl, do_log)
-			currF = currF + 1
+			currF += 1
 			continue
 		try:
 			# Open file URL
@@ -74,7 +74,7 @@ def dl(manifest, do_log, user_agent, verbose):
 			projectresp = urllib.request.urlopen(req(filepath, user_agent))
 		except urllib.error.HTTPError as e:
 			log_failed(str(e.code) + ' - ' + projecturl, do_log)
-			currF = currF + 1
+			currF += 1
 			continue
 #		# Get fileName from header
 #		filename = projectresp.info()['Content-Disposition']
@@ -94,7 +94,7 @@ def dl(manifest, do_log, user_agent, verbose):
 		else:
 			with open(str(minecraftPath / "mods" / filename), "wb") as mod:
 				mod.write(projectresp.read())
-		currF = currF + 1
+		currF += 1
 	print('Catched \'em all!')
 	return
 
