@@ -24,6 +24,7 @@ def log_failed(content, do_log):
 		from datetime import datetime
 		with open(str(datetime.now().date()) + '_dlcmp_failed.txt', 'a') as f:
 			f.write('(' + str(datetime.now().time()) + ') ' + content + '\n')
+			f.close()
 def req(url, ua_head):
 	req = urllib.request.Request(url)
 	req.add_header('User-Agent', ua_head)
