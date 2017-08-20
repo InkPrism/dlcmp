@@ -59,7 +59,7 @@ def dl(manifest, do_log, user_agent, verbose):
 	# The magic...
 	for dependency in manifestJson['files']:
 		# Set project and file URLs
-		projecturl = 'http://minecraft.curseforge.com/mc-mods/' + str(dependency['projectID'])
+		projecturl = 'https://minecraft.curseforge.com/mc-mods/' + str(dependency['projectID'])
 		try:
 			# We need a redirection
 			projectresp = urllib.request.urlopen(req(projecturl, user_agent))
