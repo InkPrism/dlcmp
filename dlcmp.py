@@ -160,7 +160,7 @@ def main():
 	parser.add_argument("--ua", help="User-Agent String")
 	parser.add_argument("-v", help="show verbose information", action='store_true')
 	parser.add_argument("-l", help="log failed requests", action='store_true')
-	parser.set_defaults(ua='Mozilla/5.0 (Windows NT 6.1; WOW64; rv:37.0) Gecko/20100101 Firefox/37.0')
+	parser.set_defaults(ua='Mozilla/5.0 (Windows NT 6.1; WOW64; rv:37.0) Gecko/20100101 Firefox/37.0') # http://techblog.willshouse.com/2012/01/03/most-common-user-agents/
 	parser.set_defaults(v=False)
 	parser.set_defaults(l=False)
 	args, unknown = parser.parse_known_args()
