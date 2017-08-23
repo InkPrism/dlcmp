@@ -168,7 +168,7 @@ def main():
 	print('Log: ' + str(args.l))
 	if not args.d == None:
 		get_modpack(str(args.d), args.l, args.ua, args.v)
-	if not args.m == None:
+	elif not args.m == None:
 		if not os.path.isfile(args.m):
 			print('No manifest found at %s' % args.m)
 			return
