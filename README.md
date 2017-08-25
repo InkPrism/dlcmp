@@ -1,4 +1,12 @@
-# dlcmp - download utility for curse mod packs
+***
+
+<h1 align="center">
+	<b>dlcmp</b>
+</h1>
+<h3 align="center">
+	<i>download utility for curse mod packs</i>
+</h3>
+
 ### Features
 * Download mod pack archive and download the mods from the manifest.json  
 ```
@@ -10,5 +18,6 @@ $  dlcmp.py -m path/2/manifest.json
 ```
 * If a mod site is unavailable, it will be skipped
 * If the file already exists, it will not be downloaded again  
+* No dependencies other than the [Python Standard Library](https://docs.python.org/library/ "Python Standard Library")
 
 ### Have fun
