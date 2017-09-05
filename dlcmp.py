@@ -8,7 +8,6 @@ import shutil
 import urllib.request
 import urllib.parse
 import posixpath
-import re
 import zipfile
 
 def getheader(resp, head):
