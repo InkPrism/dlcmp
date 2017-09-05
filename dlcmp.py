@@ -84,16 +84,17 @@ def dl(manifest, do_log, user_agent, verbose):
 		filename = posixpath.basename(path)
 		filename = filename.replace('%20', ' ')
 		# Retrieve and write file
-		print('[' + str(currF) + '/' + str(allF) + '] ' + str(filename))
+		print('[' + str(currF) + '/' + str(allF) + '] ' + str(filename), end='')
 		# Get file size from header if verbose is true
 		if verbose:
 			print(getheader(projectresp, "Content-Length") + " bytes.")
 		# If file is already exists, skip
 		if os.path.isfile(str(minecraftPath / "mods" / filename)):
-			print('SKIPPED')
+			print(' - SKIPPED')
 		else:
 			with open(str(minecraftPath / "mods" / filename), "wb") as mod:
 				mod.write(projectresp.read())
+			print(" - Done")
 		currF += 1
 	print('Catched \'em all!')
 	return
