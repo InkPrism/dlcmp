@@ -119,7 +119,8 @@ def get_modpack(url, do_log, user_agent, verbose):
     try:
         with open(filename, "wb") as f:
             f.write(resp)
-    except:
+    except OSError, IOError as e:
+        log_failed(e, do_log)
         log_failed('Unable to write data from ' + str(url) + ' to ' + str(filename), do_log)
         return
     # Create new dir for extracted files
@@ -135,7 +136,8 @@ def get_modpack(url, do_log, user_agent, verbose):
     # Create the Dir
     try:
         os.makedirs(str(Path(dirname)))
-    except:
+    except OSError as e:
+        log_failed(e, do_log)
         log_failed('Unable to create ' + str(dirname), do_log)
         return
     try:
@@ -143,13 +145,23 @@ def get_modpack(url, do_log, user_agent, verbose):
         zip_ref = zipfile.ZipFile(filename, 'r')
         zip_ref.extractall(str(Path(dirname)))
         zip_ref.close()
+    except FileNotFoundError as e:
+        log_failed(e, do_log)
+        return
+    except zipfile.BadZipFile as e:
+        log_failed(e, do_log)
+        return
     except:
         log_failed('Unable to extract files from ' + str(filename), do_log)
         return
     try:
         # Delete the retrieved file
         os.remove(filename)
-    except:
+    except FileNotFoundError as e:
+        log_failed(e, do_log)
+        log_failed('Still attempting to read \'manifest.json\'', do_log)
+    except OSError as e:
+        log_failed(e, do_log)
         log_failed('Unable to remove ' + str(filename), do_log)
     # And now go and download the files
     dl(Path(dirname, 'manifest.json'), do_log, user_agent, verbose)
