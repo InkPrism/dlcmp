@@ -119,7 +119,7 @@ def get_modpack(url, do_log, user_agent, verbose):
     try:
         with open(filename, "wb") as f:
             f.write(resp)
-    except OSError, IOError as e:
+    except (OSError, IOError) as e:
         log_failed(e, do_log)
         log_failed('Unable to write data from ' + str(url) + ' to ' + str(filename), do_log)
         return
