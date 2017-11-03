@@ -130,8 +130,8 @@ def get_modpack(url, log, user_agent, verbose):
         dirname = dirname[:-4]
     # If Dir already exist
     if os.path.isdir(str(Path(dirname))):
-        print('Dir ' + str(dirname) + ' already exists.')
-        print('To not go at risk of destroying data, the procedure will be stopped.')
+        log_failed('Dir ' + str(dirname) + ' already exists.', log)
+        log_failed('To not go at risk of destroying data, the procedure will be stopped.', log)
         return
     # Create the Dir
     try:
