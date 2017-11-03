@@ -9,6 +9,7 @@ import urllib.request
 import urllib.parse
 import posixpath
 import zipfile
+import re
 
 def getheader(resp, head):
     # Try to retrieve the specified header
@@ -168,8 +169,9 @@ def get_modpack(url, do_log, user_agent, verbose):
 
 def main():
     parser = argparse.ArgumentParser(description="dlcmp - download utility for curse mod packs")
-    parser.add_argument("-d", "--download", metavar='URL', dest='url', help="download modpack file (e.g. 'https://minecraft.curseforge.com/projects/invasion/files/2447205')")
-    parser.add_argument("-m", "--manifest", metavar='manifestpath', dest='manipath', help="manifest.json file from unzipped pack")
+    parser.add_argument("dest", metavar='destination', nargs='?', help="url or path (e.g. 'https://minecraft.curseforge.com/projects/invasion/files/2447205' or 'path/2/manifest.json')", default=None)
+    parser.add_argument("--url", "--prefer-url", dest='url', help="positional argument will be handled as an URL", action='store_true', default=False)
+    parser.add_argument("--path", "--prefer-path", dest='path', help="positional argument will be handled as a path", action='store_true', default=False)
     parser.add_argument("--ua", "--user-agent", metavar='user-agent-string', dest='useragent', help="User-Agent String", default='Mozilla/5.0 (Windows NT 6.1; WOW64; rv:37.0) Gecko/20100101 Firefox/37.0') # http://techblog.willshouse.com/2012/01/03/most-common-user-agents/
     parser.add_argument("-v", "--verbose", dest='verbose', help="show verbose information", action='store_true', default=False)
     parser.add_argument("-l", "--log", dest='log' , help="log failed requests", action='store_true', default=False)
@@ -177,16 +179,19 @@ def main():
     if args.verbose:
         print('Log: ' + str(args.log))
         print('User-Agent: ' + str(args.useragent))
-    if not args.url == None:
-        get_modpack(str(args.url), args.log, args.useragent, args.verbose)
-    elif not args.manipath == None:
-        if not os.path.isfile(args.manipath):
-            print('No manifest found at %s' % args.manipath)
-            return
-        dl(args.manipath, args.log, args.useragent, args.verbose)
-    else:
-        print('No valid arguments found. Type \'--help\' for more information.')
+    if args.dest == None:
+        print('No positional argument found. Aborting.')
         return
+    # Test, if it is a url (with bad regex) and not specified as path (or if it is specified as url)
+    match = re.match(r'^(?:(?:http|ftp)s?://).*$', args.dest, re.IGNORECASE)
+    if  match and not args.path or args.url:
+        get_modpack(str(args.dest), args.log, args.useragent, args.verbose)
+    # Specified as path?
+    else:
+        if not os.path.isfile(args.dest):
+            print('No manifest found at %s' % args.dest)
+            return
+        dl(args.dest, args.log, args.useragent, args.verbose)
 
 if __name__ == '__main__':
     main()
