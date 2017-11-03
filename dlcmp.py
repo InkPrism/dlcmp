@@ -18,19 +18,18 @@ def getheader(resp, head):
     except:
         return "-HeadNotFound-"
 
-def log_failed(content, do_log):
+def log_failed(content, log):
     print(content)
-    if do_log:
-        from datetime import datetime
-        with open(str(datetime.now().date()) + '_dlcmp_failed.txt', 'a') as f:
-            f.write('(' + str(datetime.now().time()) + ') ' + content + '\n')
+    if log is not None:
+        with open(log, 'a') as f:
+            f.write(content + '\n')
             f.close()
 def req(url, ua_head):
     req = urllib.request.Request(url)
     req.add_header('User-Agent', ua_head)
     return req
 
-def dl(manifest, do_log, user_agent, verbose):
+def dl(manifest, log, user_agent, verbose):
     print('\n(' + str(manifest) + ')')
     print('rtfm...')
     # Concrete path
@@ -65,7 +64,7 @@ def dl(manifest, do_log, user_agent, verbose):
             projectresp = urllib.request.urlopen(req(projecturl, user_agent))
             projecturl = projectresp.geturl() # (e. g. https://minecraft.curseforge.com/mc-mods/74924 -> https://minecraft.curseforge.com/projects/mantle)
         except urllib.error.HTTPError as e:
-            log_failed(str(e.code) + ' - ' + projecturl, do_log)
+            log_failed(str(e.code) + ' - ' + projecturl, log)
             currF += 1
             continue
         try:
@@ -73,7 +72,7 @@ def dl(manifest, do_log, user_agent, verbose):
             filepath = projecturl + '/files/' + str(dependency['fileID']) + '/download'
             projectresp = urllib.request.urlopen(req(filepath, user_agent))
         except urllib.error.HTTPError as e:
-            log_failed(str(e.code) + ' - ' + projecturl, do_log)
+            log_failed(str(e.code) + ' - ' + projecturl, log)
             currF += 1
             continue
 #        # Get fileName from header
@@ -99,7 +98,7 @@ def dl(manifest, do_log, user_agent, verbose):
     print('Catched \'em all!')
     return
 
-def get_modpack(url, do_log, user_agent, verbose):
+def get_modpack(url, log, user_agent, verbose):
     print('\n(' + str(url) + ')')
     print('Starting download...')
     try:
@@ -115,14 +114,14 @@ def get_modpack(url, do_log, user_agent, verbose):
         filename = posixpath.basename(dl_mp)
         print('Downloading ' + filename)
     except urllib.error.HTTPError as e:
-        log_failed(e + ' - ' + url, do_log)
+        log_failed(e + ' - ' + url, log)
         return
     try:
         with open(filename, "wb") as f:
             f.write(resp)
     except (OSError, IOError) as e:
-        log_failed(e, do_log)
-        log_failed('Unable to write data from ' + str(url) + ' to ' + str(filename), do_log)
+        log_failed(e, log)
+        log_failed('Unable to write data from ' + str(url) + ' to ' + str(filename), log)
         return
     # Create new dir for extracted files
     dirname = filename
@@ -138,8 +137,8 @@ def get_modpack(url, do_log, user_agent, verbose):
     try:
         os.makedirs(str(Path(dirname)))
     except OSError as e:
-        log_failed(e, do_log)
-        log_failed('Unable to create ' + str(dirname), do_log)
+        log_failed(e, log)
+        log_failed('Unable to create ' + str(dirname), log)
         return
     try:
         # Unzip the retrieved file
@@ -147,25 +146,25 @@ def get_modpack(url, do_log, user_agent, verbose):
         zip_ref.extractall(str(Path(dirname)))
         zip_ref.close()
     except FileNotFoundError as e:
-        log_failed(e, do_log)
+        log_failed(e, log)
         return
     except zipfile.BadZipFile as e:
-        log_failed(e, do_log)
+        log_failed(e, log)
         return
     except:
-        log_failed('Unable to extract files from ' + str(filename), do_log)
+        log_failed('Unable to extract files from ' + str(filename), log)
         return
     try:
         # Delete the retrieved file
         os.remove(filename)
     except FileNotFoundError as e:
-        log_failed(e, do_log)
-        log_failed('Still attempting to read \'manifest.json\'', do_log)
+        log_failed(e, log)
+        log_failed('Still attempting to read \'manifest.json\'', log)
     except OSError as e:
-        log_failed(e, do_log)
-        log_failed('Unable to remove ' + str(filename), do_log)
+        log_failed(e, log)
+        log_failed('Unable to remove ' + str(filename), log)
     # And now go and download the files
-    dl(Path(dirname, 'manifest.json'), do_log, user_agent, verbose)
+    dl(Path(dirname, 'manifest.json'), log, user_agent, verbose)
 
 def main():
     parser = argparse.ArgumentParser(description="dlcmp - download utility for curse mod packs")
@@ -174,7 +173,7 @@ def main():
     parser.add_argument("--path", "--prefer-path", dest='path', help="positional argument will be handled as a path", action='store_true', default=False)
     parser.add_argument("--ua", "--user-agent", metavar='user-agent-string', dest='useragent', help="User-Agent String", default='Mozilla/5.0 (Windows NT 6.1; WOW64; rv:37.0) Gecko/20100101 Firefox/37.0') # http://techblog.willshouse.com/2012/01/03/most-common-user-agents/
     parser.add_argument("-v", "--verbose", dest='verbose', help="show verbose information", action='store_true', default=False)
-    parser.add_argument("-l", "--log", dest='log' , help="log failed requests", action='store_true', default=False)
+    parser.add_argument("-l", "--log", dest='log' , metavar='logfile', help="log failed requests", default=None)
     args, unknown = parser.parse_known_args()
     if args.verbose:
         print('Log: ' + str(args.log))
