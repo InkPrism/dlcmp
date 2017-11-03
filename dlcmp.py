@@ -185,6 +185,9 @@ def main():
             print('No manifest found at %s' % args.m)
             return
         dl(args.m, args.l, args.ua, args.v)
+    else:
+        print('No valid arguments found. Type \'--help\' for more information.')
+        return
 
 if __name__ == '__main__':
     main()
