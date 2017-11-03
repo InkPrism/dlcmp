@@ -168,23 +168,22 @@ def get_modpack(url, do_log, user_agent, verbose):
 
 def main():
     parser = argparse.ArgumentParser(description="dlcmp - download utility for curse mod packs")
-    parser.add_argument("-d", help="download modpack file (e.g. 'https://minecraft.curseforge.com/projects/invasion/files/2447205')")
-    parser.add_argument("-m", help="manifest.json file from unzipped pack")
-    parser.add_argument("--ua", help="User-Agent String")
-    parser.add_argument("-v", help="show verbose information", action='store_true')
-    parser.add_argument("-l", help="log failed requests", action='store_true')
-    parser.set_defaults(ua='Mozilla/5.0 (Windows NT 6.1; WOW64; rv:37.0) Gecko/20100101 Firefox/37.0') # http://techblog.willshouse.com/2012/01/03/most-common-user-agents/
-    parser.set_defaults(v=False)
-    parser.set_defaults(l=False)
+    parser.add_argument("-d", "--download", metavar='URL', dest='url', help="download modpack file (e.g. 'https://minecraft.curseforge.com/projects/invasion/files/2447205')")
+    parser.add_argument("-m", "--manifest", metavar='manifestpath', dest='manipath', help="manifest.json file from unzipped pack")
+    parser.add_argument("--ua", "--user-agent", metavar='user-agent-string', dest='useragent', help="User-Agent String", default='Mozilla/5.0 (Windows NT 6.1; WOW64; rv:37.0) Gecko/20100101 Firefox/37.0') # http://techblog.willshouse.com/2012/01/03/most-common-user-agents/
+    parser.add_argument("-v", "--verbose", dest='verbose', help="show verbose information", action='store_true', default=False)
+    parser.add_argument("-l", "--log", dest='log' , help="log failed requests", action='store_true', default=False)
     args, unknown = parser.parse_known_args()
-    print('Log: ' + str(args.l))
-    if not args.d == None:
-        get_modpack(str(args.d), args.l, args.ua, args.v)
-    elif not args.m == None:
-        if not os.path.isfile(args.m):
-            print('No manifest found at %s' % args.m)
+    if args.verbose:
+        print('Log: ' + str(args.log))
+        print('User-Agent: ' + str(args.useragent))
+    if not args.url == None:
+        get_modpack(str(args.url), args.log, args.useragent, args.verbose)
+    elif not args.manipath == None:
+        if not os.path.isfile(args.manipath):
+            print('No manifest found at %s' % args.manipath)
             return
-        dl(args.m, args.l, args.ua, args.v)
+        dl(args.manipath, args.log, args.useragent, args.verbose)
     else:
         print('No valid arguments found. Type \'--help\' for more information.')
         return
