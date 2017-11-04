@@ -86,7 +86,7 @@ def dl(manifest, log, user_agent, verbose):
         print('[' + str(currF) + '/' + str(allF) + '] ' + str(filename), end='')
         # Get file size from header if verbose is true
         if verbose:
-            print(getheader(projectresp, "Content-Length") + " bytes.")
+            print(" - %s bytes" % getheader(projectresp, "Content-Length"), end="")
         # If file is already exists, skip
         if os.path.isfile(str(minecraftPath / "mods" / filename)):
             print(' - SKIPPED')
