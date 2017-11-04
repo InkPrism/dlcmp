@@ -21,9 +21,13 @@ def getheader(resp, head):
 def log_failed(content, log):
     print(content)
     if log is not None:
-        with open(log, 'a') as f:
-            f.write(content + '\n')
-            f.close()
+        try:
+            with open(log, 'a') as f:
+                f.write(content + '\n')
+                f.close()
+        except (OSError, FileNotFoundError) as e:
+            pass
+
 def req(url, ua_head):
     req = urllib.request.Request(url)
     req.add_header('User-Agent', ua_head)
