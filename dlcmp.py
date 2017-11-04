@@ -29,7 +29,7 @@ def req(url, ua_head):
     req.add_header('User-Agent', ua_head)
     return req
 
-def dl(manifest, log, user_agent, verbose):
+def dl(manifest, log, user_agent, verbose, cache):
     print('\n(' + str(manifest) + ')')
     print('rtfm...')
     # Concrete path
@@ -54,9 +54,27 @@ def dl(manifest, log, user_agent, verbose):
     print(str(allF) + ' mods found.')
 
     print('Downloading files...')
+    # Check, if a cache path was given...
+    if cache is not None:
+        if os.path.isdir(cache):
+            cachepath = Path(cache)
+            cachedl = True
+        else:
+            print(str(cache) + " is no directory or cannot be accessed as such. Continuing without cache.")
+            cachedl = False
 
     # The magic...
     for dependency in manifestJson['files']:
+        if cachedl:
+            targetdir = Path(cachepath, str(dependency['projectID']), str(dependency['fileID']))
+            if os.path.isdir(targetdir):
+                # targeted dir exists, getting the first (there should only be one... *knock on wood*.)
+                targetfile = [f for f in targetdir.iterdir()]
+                if len(targetfile) >= 1:
+                    targetfile = targetfile[0]
+                    shutil.copyfile(str(targetfile), str(minecraftPath / "mods" / targetfile.name))
+                    currF += 1
+                    continue
         # Set project and file URLs
         projecturl = 'https://minecraft.curseforge.com/mc-mods/' + str(dependency['projectID'])
         try:
@@ -93,12 +111,18 @@ def dl(manifest, log, user_agent, verbose):
         else:
             with open(str(minecraftPath / "mods" / filename), "wb") as mod:
                 mod.write(projectresp.read())
+            # If a cache is used, add the file to it.
+            if cachedl:
+                targetcachepath = Path(cachepath, str(dependency['projectID']), str(dependency['fileID']))
+                if os.path.exists(targetcachepath):
+                    targetcachepath.mkdir(parents=True)
+                shutil.copyfile(str(minecraftPath / "mods" / filename), str(cachepath / str(dependency['projectID']) / str(dependency['fileID']) / filename))
             print(" - Done")
         currF += 1
     print('Catched \'em all!')
     return
 
-def get_modpack(url, log, user_agent, verbose):
+def get_modpack(url, log, user_agent, verbose, cache):
     print('\n(' + str(url) + ')')
     print('Starting download...')
     try:
@@ -164,7 +188,7 @@ def get_modpack(url, log, user_agent, verbose):
         log_failed(e, log)
         log_failed('Unable to remove ' + str(filename), log)
     # And now go and download the files
-    dl(Path(dirname, 'manifest.json'), log, user_agent, verbose)
+    dl(Path(dirname, 'manifest.json'), log, user_agent, verbose, cache)
 
 def main():
     parser = argparse.ArgumentParser(description="dlcmp - download utility for curse mod packs")
@@ -174,6 +198,7 @@ def main():
     parser.add_argument("--ua", "--user-agent", metavar='user-agent-string', dest='useragent', help="User-Agent String", default='Mozilla/5.0 (Windows NT 6.1; WOW64; rv:37.0) Gecko/20100101 Firefox/37.0') # http://techblog.willshouse.com/2012/01/03/most-common-user-agents/
     parser.add_argument("-v", "--verbose", dest='verbose', help="show verbose information", action='store_true', default=False)
     parser.add_argument("-l", "--log", dest='log' , metavar='logfile', help="log failed requests", default=None)
+    parser.add_argument("-c", "--cache", dest='cache', metavar='cachedir', help='path to cache directory')
     args, unknown = parser.parse_known_args()
     if args.verbose:
         print('Log: ' + str(args.log))
@@ -184,13 +209,13 @@ def main():
     # Test, if it is a url (with bad regex) and not specified as path (or if it is specified as url)
     match = re.match(r'^(?:(?:http|ftp)s?://).*$', args.dest, re.IGNORECASE)
     if  match and not args.path or args.url:
-        get_modpack(str(args.dest), args.log, args.useragent, args.verbose)
+        get_modpack(str(args.dest), args.log, args.useragent, args.verbose, args.cache)
     # Specified as path?
     else:
         if not os.path.isfile(args.dest):
             print('No manifest found at %s' % args.dest)
             return
-        dl(args.dest, args.log, args.useragent, args.verbose)
+        dl(args.dest, args.log, args.useragent, args.verbose, args.cache)
 
 if __name__ == '__main__':
     main()
