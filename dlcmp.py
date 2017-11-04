@@ -1,15 +1,11 @@
 #!/usr/bin/env python3
 
-import argparse
-import json
 from pathlib import Path
 import os
 import shutil
 import urllib.request
 import urllib.parse
 import posixpath
-import zipfile
-import re
 
 def getheader(resp, head):
     # Try to retrieve the specified header
@@ -34,6 +30,7 @@ def req(url, ua_head):
     return req
 
 def dl(manifest, log, user_agent, verbose, cache):
+    import json
     print('\n(' + str(manifest) + ')')
     print('rtfm...')
     # Concrete path
@@ -127,6 +124,7 @@ def dl(manifest, log, user_agent, verbose, cache):
     return
 
 def get_modpack(url, log, user_agent, verbose, cache):
+    import zipfile
     print('\n(' + str(url) + ')')
     print('Starting download...')
     try:
@@ -195,6 +193,8 @@ def get_modpack(url, log, user_agent, verbose, cache):
     dl(Path(dirname, 'manifest.json'), log, user_agent, verbose, cache)
 
 def main():
+    import argparse
+    import re
     parser = argparse.ArgumentParser(description="dlcmp - download utility for curse mod packs")
     parser.add_argument("dest", metavar='destination', nargs='?', help="url or path (e.g. 'https://minecraft.curseforge.com/projects/invasion/files/2447205' or 'path/2/manifest.json')", default=None)
     parser.add_argument("--url", "--prefer-url", dest='url', help="positional argument will be handled as an URL", action='store_true', default=False)
