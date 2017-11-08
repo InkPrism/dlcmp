@@ -78,16 +78,8 @@ def dl(manifest, log, user_agent, verbose, cache):
                     shutil.copyfile(str(targetfile), str(minecraftPath / "mods" / targetfile.name))
                     currF += 1
                     continue
-        # Set project and file URLs
-        projecturl = 'https://minecraft.curseforge.com/mc-mods/' + str(dependency['projectID'])
-        try:
-            # We need a redirection
-            projectresp = urllib.request.urlopen(req(projecturl, user_agent))
-            projecturl = projectresp.geturl() # (e. g. https://minecraft.curseforge.com/mc-mods/74924 -> https://minecraft.curseforge.com/projects/mantle)
-        except urllib.error.HTTPError as e:
-            log_failed(str(e.code) + ' - ' + projecturl, log)
-            currF += 1
-            continue
+        # Set project URL
+        projecturl = 'https://minecraft.curseforge.com/projects/' + str(dependency['projectID'])
         try:
             # Open file URL
             filepath = projecturl + '/files/' + str(dependency['fileID']) + '/download'
