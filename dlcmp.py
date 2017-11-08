@@ -63,6 +63,8 @@ def dl(manifest, log, user_agent, verbose, cache):
         else:
             print(str(cache) + " is no directory or cannot be accessed as such. Continuing without cache.")
             cachedl = False
+    else:
+        cachedl = False
 
     # The magic...
     for dependency in manifestJson['files']:
