@@ -7,12 +7,14 @@ import urllib.request
 import urllib.parse
 import posixpath
 
+
 def getheader(resp, head):
     # Try to retrieve the specified header
     try:
         return resp.info()[head]
     except:
         return "-HeadNotFound-"
+
 
 def log_failed(content, log):
     print(content)
@@ -24,10 +26,12 @@ def log_failed(content, log):
         except (OSError, FileNotFoundError) as e:
             pass
 
+
 def req(url, ua_head):
     req = urllib.request.Request(url)
     req.add_header('User-Agent', ua_head)
     return req
+
 
 def dl(manifest, log=None, user_agent="-", verbose=False, cache=None):
     import json
@@ -118,6 +122,7 @@ def dl(manifest, log=None, user_agent="-", verbose=False, cache=None):
     print('Catched \'em all!')
     return
 
+
 def get_modpack(url, log=None, user_agent="-", verbose=False, cache=None):
     import zipfile
     print('\n[*] ' + str(url))
@@ -187,6 +192,7 @@ def get_modpack(url, log=None, user_agent="-", verbose=False, cache=None):
     # And now go and download the files
     dl(Path(dirname, 'manifest.json'), log=log, user_agent=user_agent, verbose=verbose, cache=cache)
 
+
 def main():
     import argparse
     import re
@@ -194,21 +200,21 @@ def main():
     parser.add_argument("dest", metavar='destination', nargs='?', help="url or path (e.g. 'https://minecraft.curseforge.com/projects/invasion/files/2447205' or 'path/2/manifest.json')", default=None)
     parser.add_argument("--url", "--prefer-url", dest='prefer_url', help="positional argument will be handled as an URL", action='store_true', default=False)
     parser.add_argument("--path", "--prefer-path", dest='prefer_path', help="positional argument will be handled as a path", action='store_true', default=False)
-    parser.add_argument("--ua", "--user-agent", metavar='user-agent-string', dest='useragent', help="User-Agent String", default='Mozilla/5.0 (Windows NT 6.1; WOW64; rv:37.0) Gecko/20100101 Firefox/37.0') # http://techblog.willshouse.com/2012/01/03/most-common-user-agents/
+    parser.add_argument("--ua", "--user-agent", metavar='user-agent-string', dest='useragent', help="User-Agent String", default='Mozilla/5.0 (Windows NT 6.1; WOW64; rv:37.0) Gecko/20100101 Firefox/37.0')  # http://techblog.willshouse.com/2012/01/03/most-common-user-agents/
     parser.add_argument("-v", "--verbose", dest='verbose', help="show verbose information", action='store_true', default=False)
-    parser.add_argument("-l", "--log", dest='log' , metavar='logfile', help="log failed requests", default=None)
+    parser.add_argument("-l", "--log", dest='log', metavar='logfile', help="log failed requests", default=None)
     parser.add_argument("-c", "--cache", dest='cache', metavar='cachedir', help='path to cache directory')
     args, unknown = parser.parse_known_args()
     if args.verbose:
         print('Log: ' + str(args.log))
         print('User-Agent: ' + str(args.useragent))
-    if args.dest == None:
+    if args.dest is None:
         parser.print_usage()
         print('No positional argument found. Aborting.')
         return
     # Test, if it is a url (with bad regex) and not specified as path (or if it is specified as url)
     match = re.match(r'^(?:(?:http|ftp)s?://).*$', args.dest, re.IGNORECASE)
-    if  match and not args.prefer_path or args.prefer_url:
+    if match and not args.prefer_path or args.prefer_url:
         get_modpack(str(args.dest), log=args.log, user_agent=args.useragent, verbose=args.verbose, cache=args.cache)
     # Specified as path?
     else:
