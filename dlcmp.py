@@ -87,7 +87,7 @@ def dl(manifest, log=None, user_agent="-", verbose=False, cache=None):
             filepath = projecturl + '/files/' + str(dependency['fileID']) + '/download'
             projectresp = urllib.request.urlopen(req(filepath, user_agent))
         except urllib.error.HTTPError as e:
-            log_failed(str(e.code) + ' - ' + projecturl, log)
+            log_failed(str(e.code) + ' - ' + filepath, log)
             currF += 1
             continue
 #        # Get fileName from header
