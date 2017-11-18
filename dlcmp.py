@@ -31,30 +31,29 @@ def req(url, ua_head):
 
 def dl(manifest, log=None, user_agent="-", verbose=False, cache=None):
     import json
-    print('\n(' + str(manifest) + ')')
+    print('\n[*] ' + str(manifest))
     print('rtfm...')
     # Concrete path
     manifestpath = Path(manifest)
     # Get the parent
     manifestparent = manifestpath.parent
     # Read the content of manifest
-    manifestcontent = manifestpath.open().read()
     # Load json from manifestcontent
-    manifestJson = json.loads(manifestcontent)
+    manifestjson = json.loads(manifestpath.open().read())
 
     # Path to minecraft dir
-    minecraftPath = Path(manifestparent, "minecraft")
-    overridePath = Path(manifestparent, manifestJson['overrides'])
+    minecraftpath = Path(manifestparent, "minecraft")
+    overridepath = Path(manifestparent, manifestjson['overrides'])
     # Check, if override exists and if true, move it into minecraft
-    if overridePath.exists():
-        shutil.move(str(overridePath), str(minecraftPath))
+    if overridepath.exists():
+        shutil.move(str(overridepath), str(minecraftpath))
     # Check, if mods dir exists
-    if not Path(minecraftPath, "mods").exists():
-        os.mkdir(str(minecraftPath / "mods"))
+    if not Path(minecraftpath, "mods").exists():
+        os.mkdir(str(minecraftpath / "mods"))
 
     # Fancy counter
     currF = 1
-    allF = len(manifestJson['files'])
+    allF = len(manifestjson['files'])
     print(str(allF) + ' mods found.')
 
     print('Downloading files...')
@@ -69,7 +68,7 @@ def dl(manifest, log=None, user_agent="-", verbose=False, cache=None):
             print(str(cache) + " is no directory or cannot be accessed as such. Continuing without cache.")
 
     # The magic...
-    for dependency in manifestJson['files']:
+    for dependency in manifestjson['files']:
         if cachedl:
             targetdir = Path(cachepath, str(dependency['projectID']), str(dependency['fileID']))
             if os.path.isdir(targetdir):
@@ -77,7 +76,7 @@ def dl(manifest, log=None, user_agent="-", verbose=False, cache=None):
                 targetfile = [f for f in targetdir.iterdir()]
                 if len(targetfile) >= 1:
                     targetfile = targetfile[0]
-                    shutil.copyfile(str(targetfile), str(minecraftPath / "mods" / targetfile.name))
+                    shutil.copyfile(str(targetfile), str(minecraftpath / "mods" / targetfile.name))
                     currF += 1
                     continue
         # Set project URL
@@ -103,17 +102,17 @@ def dl(manifest, log=None, user_agent="-", verbose=False, cache=None):
         if verbose:
             print(" - %s bytes" % getheader(projectresp, "Content-Length"), end="")
         # If file is already exists, skip
-        if os.path.isfile(str(minecraftPath / "mods" / filename)):
+        if os.path.isfile(str(minecraftpath / "mods" / filename)):
             print(' - SKIPPED')
         else:
-            with open(str(minecraftPath / "mods" / filename), "wb") as mod:
+            with open(str(minecraftpath / "mods" / filename), "wb") as mod:
                 mod.write(projectresp.read())
             # If a cache is used, add the file to it.
             if cachedl:
                 targetcachepath = Path(cachepath, str(dependency['projectID']), str(dependency['fileID']))
                 if os.path.exists(targetcachepath):
                     targetcachepath.mkdir(parents=True)
-                shutil.copyfile(str(minecraftPath / "mods" / filename), str(cachepath / str(dependency['projectID']) / str(dependency['fileID']) / filename))
+                shutil.copyfile(str(minecraftpath / "mods" / filename), str(cachepath / str(dependency['projectID']) / str(dependency['fileID']) / filename))
             print(" - Done")
         currF += 1
     print('Catched \'em all!')
@@ -121,7 +120,7 @@ def dl(manifest, log=None, user_agent="-", verbose=False, cache=None):
 
 def get_modpack(url, log=None, user_agent="-", verbose=False, cache=None):
     import zipfile
-    print('\n(' + str(url) + ')')
+    print('\n[*] ' + str(url))
     print('Starting download...')
     try:
         to_file = '/download'
@@ -193,8 +192,8 @@ def main():
     import re
     parser = argparse.ArgumentParser(description="dlcmp - download utility for curse mod packs")
     parser.add_argument("dest", metavar='destination', nargs='?', help="url or path (e.g. 'https://minecraft.curseforge.com/projects/invasion/files/2447205' or 'path/2/manifest.json')", default=None)
-    parser.add_argument("--url", "--prefer-url", dest='url', help="positional argument will be handled as an URL", action='store_true', default=False)
-    parser.add_argument("--path", "--prefer-path", dest='path', help="positional argument will be handled as a path", action='store_true', default=False)
+    parser.add_argument("--url", "--prefer-url", dest='prefer_url', help="positional argument will be handled as an URL", action='store_true', default=False)
+    parser.add_argument("--path", "--prefer-path", dest='prefer_path', help="positional argument will be handled as a path", action='store_true', default=False)
     parser.add_argument("--ua", "--user-agent", metavar='user-agent-string', dest='useragent', help="User-Agent String", default='Mozilla/5.0 (Windows NT 6.1; WOW64; rv:37.0) Gecko/20100101 Firefox/37.0') # http://techblog.willshouse.com/2012/01/03/most-common-user-agents/
     parser.add_argument("-v", "--verbose", dest='verbose', help="show verbose information", action='store_true', default=False)
     parser.add_argument("-l", "--log", dest='log' , metavar='logfile', help="log failed requests", default=None)
@@ -204,11 +203,12 @@ def main():
         print('Log: ' + str(args.log))
         print('User-Agent: ' + str(args.useragent))
     if args.dest == None:
+        parser.print_usage()
         print('No positional argument found. Aborting.')
         return
     # Test, if it is a url (with bad regex) and not specified as path (or if it is specified as url)
     match = re.match(r'^(?:(?:http|ftp)s?://).*$', args.dest, re.IGNORECASE)
-    if  match and not args.path or args.url:
+    if  match and not args.prefer_path or args.prefer_url:
         get_modpack(str(args.dest), log=args.log, user_agent=args.useragent, verbose=args.verbose, cache=args.cache)
     # Specified as path?
     else:
