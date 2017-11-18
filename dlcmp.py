@@ -203,6 +203,7 @@ def main():
         print('Log: ' + str(args.log))
         print('User-Agent: ' + str(args.useragent))
     if args.dest == None:
+        parser.print_usage()
         print('No positional argument found. Aborting.')
         return
     # Test, if it is a url (with bad regex) and not specified as path (or if it is specified as url)
