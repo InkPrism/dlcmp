@@ -29,7 +29,7 @@ def req(url, ua_head):
     req.add_header('User-Agent', ua_head)
     return req
 
-def dl(manifest, log, user_agent, verbose, cache):
+def dl(manifest, log=None, user_agent="-", verbose=False, cache=None):
     import json
     print('\n(' + str(manifest) + ')')
     print('rtfm...')
@@ -55,7 +55,7 @@ def dl(manifest, log, user_agent, verbose, cache):
     print(str(allF) + ' mods found.')
 
     print('Downloading files...')
-    
+
     # Check, if a cache path was given...
     cachedl = False
     if cache is not None:
@@ -116,7 +116,7 @@ def dl(manifest, log, user_agent, verbose, cache):
     print('Catched \'em all!')
     return
 
-def get_modpack(url, log, user_agent, verbose, cache):
+def get_modpack(url, log=None, user_agent="-", verbose=False, cache=None):
     import zipfile
     print('\n(' + str(url) + ')')
     print('Starting download...')
@@ -183,7 +183,7 @@ def get_modpack(url, log, user_agent, verbose, cache):
         log_failed(e, log)
         log_failed('Unable to remove ' + str(filename), log)
     # And now go and download the files
-    dl(Path(dirname, 'manifest.json'), log, user_agent, verbose, cache)
+    dl(Path(dirname, 'manifest.json'), log=log, user_agent=user_agent, verbose=verbose, cache=cache)
 
 def main():
     import argparse
@@ -206,13 +206,13 @@ def main():
     # Test, if it is a url (with bad regex) and not specified as path (or if it is specified as url)
     match = re.match(r'^(?:(?:http|ftp)s?://).*$', args.dest, re.IGNORECASE)
     if  match and not args.path or args.url:
-        get_modpack(str(args.dest), args.log, args.useragent, args.verbose, args.cache)
+        get_modpack(str(args.dest), log=args.log, user_agent=args.useragent, verbose=args.verbose, cache=args.cache)
     # Specified as path?
     else:
         if not os.path.isfile(args.dest):
             print('No manifest found at %s' % args.dest)
             return
-        dl(args.dest, args.log, args.useragent, args.verbose, args.cache)
+        dl(args.dest, log=args.log, user_agent=args.useragent, verbose=args.verbose, cache=args.cache)
 
 if __name__ == '__main__':
     main()
