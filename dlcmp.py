@@ -31,7 +31,7 @@ def req(url, ua_head):
 
 def dl(manifest, log=None, user_agent="-", verbose=False, cache=None):
     import json
-    print('\n(' + str(manifest) + ')')
+    print('\n[*] ' + str(manifest))
     print('rtfm...')
     # Concrete path
     manifestpath = Path(manifest)
@@ -121,7 +121,7 @@ def dl(manifest, log=None, user_agent="-", verbose=False, cache=None):
 
 def get_modpack(url, log=None, user_agent="-", verbose=False, cache=None):
     import zipfile
-    print('\n(' + str(url) + ')')
+    print('\n[*] ' + str(url))
     print('Starting download...')
     try:
         to_file = '/download'
