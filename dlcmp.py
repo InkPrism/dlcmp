@@ -55,16 +55,15 @@ def dl(manifest, log, user_agent, verbose, cache):
     print(str(allF) + ' mods found.')
 
     print('Downloading files...')
+    
     # Check, if a cache path was given...
+    cachedl = False
     if cache is not None:
         if os.path.isdir(cache):
             cachepath = Path(cache)
             cachedl = True
         else:
             print(str(cache) + " is no directory or cannot be accessed as such. Continuing without cache.")
-            cachedl = False
-    else:
-        cachedl = False
 
     # The magic...
     for dependency in manifestJson['files']:
