@@ -48,6 +48,9 @@ def dl(manifest, log=None, user_agent="-", verbose=False, cache=None):
     # Check, if override exists and if true, move it into minecraft
     if overridePath.exists():
         shutil.move(str(overridePath), str(minecraftPath))
+    # Check, if mods dir exists
+    if not Path(minecraftPath, "mods").exists():
+        os.mkdir(str(minecraftPath / "mods"))
 
     # Fancy counter
     currF = 1
