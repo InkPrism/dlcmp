@@ -13,7 +13,7 @@ def getheader(resp, head):
     try:
         return resp.info()[head]
     except:
-        return "-HeadNotFound-"
+        return "-"
 
 
 def log_failed(content, log):
@@ -215,7 +215,7 @@ def main():
     # Test, if it is a url (with bad regex) and not specified as path (or if it is specified as url)
     match = re.match(r'^(?:(?:http|ftp)s?://).*$', args.dest, re.IGNORECASE)
     if match and not args.prefer_path or args.prefer_url:
-        get_modpack(str(args.dest), log=args.log, user_agent=args.useragent, verbose=args.verbose, cache=args.cache)
+        get_modpack(args.dest, log=args.log, user_agent=args.useragent, verbose=args.verbose, cache=args.cache)
     # Specified as path?
     else:
         if not os.path.isfile(args.dest):
