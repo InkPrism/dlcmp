@@ -134,7 +134,7 @@ def get_modpack(url, log=None, user_agent="-", verbose=False, cache=None):
         # Retrieving modpack
         dl_mp = urllib.request.urlopen(req(url + to_file, user_agent))
         resp = dl_mp.read()
-        # Get the name for the file by getting the redirect from '/download' to 'someting/something.extenshion'
+        # Get the name for the file by getting the redirect from '/download' to 'something/something.extenshion'
         dl_mp = dl_mp.geturl()
         dl_mp = dl_mp.replace("%20", " ")
         filename = posixpath.basename(dl_mp)
