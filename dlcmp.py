@@ -193,7 +193,8 @@ def main():
         report('Log: ' + str(args.log), silent)
         report('User-Agent: ' + str(args.useragent), silent)
     if args.dest is None:
-        parser.print_usage()
+        if not args.silent:
+            parser.print_usage()
         report('No positional argument found. Aborting.', silent)
         return
     # Test, if it is a url (with bad regex) and not specified as path (or if it is specified as url)
