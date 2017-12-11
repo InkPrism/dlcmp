@@ -20,6 +20,7 @@
 * If a mod site is unavailable, it will be skipped
 * All failed requests will be noted in a logfile
 	* ```$ dlcmp.py -l path/2/logfile ...```
+* Use ```--silent``` to silence output to the command line
 * If the file already exists, it will not be downloaded again  
 * No dependencies other than the [Python Standard Library](https://docs.python.org/library/ "Python Standard Library")
 
