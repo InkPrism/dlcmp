@@ -16,8 +16,13 @@ def getheader(resp, head):
         return "-"
 
 
-def log_failed(content, log):
-    print(content)
+def report(content, silent, end=os.linesep):
+    if not silent:
+        print(content, end=end)
+
+
+def log_failed(content, log, silent):
+    report(content, silent)
     if log is not None:
         try:
             with open(log, 'a') as f:
@@ -33,10 +38,10 @@ def req(url, ua_head):
     return req
 
 
-def dl(manifest, log=None, user_agent="-", verbose=False, cache=None):
+def dl(manifest, log=None, user_agent="-", verbose=False, cache=None, silent=False):
     import json
-    print('\n[*] ' + str(manifest))
-    print('rtfm...')
+    report('\n[*] ' + str(manifest), silent)
+    report('rtfm...', silent)
     # Concrete path
     manifestpath = Path(manifest)
     # Get the parent
@@ -58,9 +63,9 @@ def dl(manifest, log=None, user_agent="-", verbose=False, cache=None):
     # Fancy counter
     currF = 1
     allF = len(manifestjson['files'])
-    print(str(allF) + ' mods found.')
+    report(str(allF) + ' mods found.', silent)
 
-    print('Downloading files...')
+    report('Downloading files...', silent)
 
     # Check, if a cache path was given...
     cachedl = False
@@ -69,7 +74,7 @@ def dl(manifest, log=None, user_agent="-", verbose=False, cache=None):
             cachepath = Path(cache)
             cachedl = True
         else:
-            log_failed(str(cache) + " is no directory or cannot be accessed as such. Continuing without cache.", log)
+            log_failed(str(cache) + " is no directory or cannot be accessed as such. Continuing without cache.", log, silent)
 
     # The magic...
     for dependency in manifestjson['files']:
@@ -90,7 +95,7 @@ def dl(manifest, log=None, user_agent="-", verbose=False, cache=None):
             filepath = projecturl + '/files/' + str(dependency['fileID']) + '/download'
             projectresp = urllib.request.urlopen(req(filepath, user_agent))
         except urllib.error.HTTPError as e:
-            log_failed(str(e.code) + ' - ' + filepath, log)
+            log_failed(str(e.code) + ' - ' + filepath, log, silent)
             currF += 1
             continue
 #        # Get fileName from header
@@ -101,13 +106,13 @@ def dl(manifest, log=None, user_agent="-", verbose=False, cache=None):
         filename = posixpath.basename(path)
         filename = filename.replace('%20', ' ')
         # Retrieve and write file
-        print('[' + str(currF) + '/' + str(allF) + '] ' + str(filename), end='')
+        report('[' + str(currF) + '/' + str(allF) + '] ' + str(filename), silent, end='')
         # Get file size from header if verbose is true
         if verbose:
-            print(" - %s bytes" % getheader(projectresp, "Content-Length"), end="")
+            report(" - %s bytes" % getheader(projectresp, "Content-Length"), silent, end="")
         # If file is already exists, skip
         if os.path.isfile(str(minecraftpath / "mods" / filename)):
-            print(' - SKIPPED')
+            report(' - SKIPPED', silent)
         else:
             with open(str(minecraftpath / "mods" / filename), "wb") as mod:
                 mod.write(projectresp.read())
@@ -117,16 +122,16 @@ def dl(manifest, log=None, user_agent="-", verbose=False, cache=None):
                 if os.path.exists(targetcachepath):
                     targetcachepath.mkdir(parents=True)
                 shutil.copyfile(str(minecraftpath / "mods" / filename), str(cachepath / str(dependency['projectID']) / str(dependency['fileID']) / filename))
-            print(" - Done")
+            report(" - Done", silent)
         currF += 1
-    print('Catched \'em all!')
+    report('Catched \'em all!', silent)
     return
 
 
-def get_modpack(url, log=None, user_agent="-", verbose=False, cache=None):
+def get_modpack(url, log=None, user_agent="-", verbose=False, cache=None, silent=False):
     import zipfile
-    print('\n[*] ' + str(url))
-    print('Starting download...')
+    report('\n[*] ' + str(url), silent)
+    report('Starting download...', silent)
     try:
         to_file = '/download'
         if url.endswith(to_file):
@@ -138,16 +143,16 @@ def get_modpack(url, log=None, user_agent="-", verbose=False, cache=None):
         dl_mp = dl_mp.geturl()
         dl_mp = dl_mp.replace("%20", " ")
         filename = posixpath.basename(dl_mp)
-        print('Downloading ' + filename)
+        report('Downloading ' + filename, silent)
     except urllib.error.HTTPError as e:
-        log_failed(e + ' - ' + url, log)
+        log_failed(e + ' - ' + url, log, silent)
         return
     try:
         with open(filename, "wb") as f:
             f.write(resp)
     except (OSError, IOError) as e:
-        log_failed(e, log)
-        log_failed('Unable to write data from ' + str(url) + ' to ' + str(filename), log)
+        log_failed(e, log, silent)
+        log_failed('Unable to write data from ' + str(url) + ' to ' + str(filename), log, silent)
         return
     # Create new dir for extracted files
     dirname = filename
@@ -156,15 +161,15 @@ def get_modpack(url, log=None, user_agent="-", verbose=False, cache=None):
         dirname = dirname[:-4]
     # If Dir already exist
     if os.path.isdir(str(Path(dirname))):
-        log_failed('Dir ' + str(dirname) + ' already exists.', log)
-        log_failed('To not go at risk of destroying data, the procedure will be stopped.', log)
+        log_failed('Dir ' + str(dirname) + ' already exists.', log, silent)
+        log_failed('To not go at risk of destroying data, the procedure will be stopped.', log, silent)
         return
     # Create the Dir
     try:
         os.makedirs(str(Path(dirname)))
     except OSError as e:
-        log_failed(e, log)
-        log_failed('Unable to create ' + str(dirname), log)
+        log_failed(e, log, silent)
+        log_failed('Unable to create ' + str(dirname), log, silent)
         return
     try:
         # Unzip the retrieved file
@@ -172,25 +177,25 @@ def get_modpack(url, log=None, user_agent="-", verbose=False, cache=None):
         zip_ref.extractall(str(Path(dirname)))
         zip_ref.close()
     except FileNotFoundError as e:
-        log_failed(e, log)
+        log_failed(e, log, silent)
         return
     except zipfile.BadZipFile as e:
-        log_failed(e, log)
+        log_failed(e, log, silent)
         return
     except:
-        log_failed('Unable to extract files from ' + str(filename), log)
+        log_failed('Unable to extract files from ' + str(filename), log, silent)
         return
     try:
         # Delete the retrieved file
         os.remove(filename)
     except FileNotFoundError as e:
-        log_failed(e, log)
-        log_failed('Still attempting to read \'manifest.json\'', log)
+        log_failed(e, log, silent)
+        log_failed('Still attempting to read \'manifest.json\'', log, silent)
     except OSError as e:
-        log_failed(e, log)
-        log_failed('Unable to remove ' + str(filename), log)
+        log_failed(e, log, silent)
+        log_failed('Unable to remove ' + str(filename), log, silent)
     # And now go and download the files
-    dl(Path(dirname, 'manifest.json'), log=log, user_agent=user_agent, verbose=verbose, cache=cache)
+    dl(Path(dirname, 'manifest.json'), log=log, user_agent=user_agent, verbose=verbose, cache=cache, silent=silent)
 
 
 def main():
@@ -204,24 +209,25 @@ def main():
     parser.add_argument("-v", "--verbose", dest='verbose', help="show verbose information", action='store_true', default=False)
     parser.add_argument("-l", "--log", dest='log', metavar='logfile', help="log failed requests (and some other stuff)", default=None)
     parser.add_argument("-c", "--cache", dest='cache', metavar='cachedir', help='path to cache directory')
+    parser.add_argument("--silent", dest='silent', help="no output to cli", action='store_true', default=False)
     args, unknown = parser.parse_known_args()
     if args.verbose:
-        print('Log: ' + str(args.log))
-        print('User-Agent: ' + str(args.useragent))
+        report('Log: ' + str(args.log), silent)
+        report('User-Agent: ' + str(args.useragent), silent)
     if args.dest is None:
         parser.print_usage()
-        print('No positional argument found. Aborting.')
+        report('No positional argument found. Aborting.', silent)
         return
     # Test, if it is a url (with bad regex) and not specified as path (or if it is specified as url)
     match = re.match(r'^(?:(?:http|ftp)s?://).*$', args.dest, re.IGNORECASE)
     if match and not args.prefer_path or args.prefer_url:
-        get_modpack(args.dest, log=args.log, user_agent=args.useragent, verbose=args.verbose, cache=args.cache)
+        get_modpack(args.dest, log=args.log, user_agent=args.useragent, verbose=args.verbose, cache=args.cache, silent=args.silent)
     # Specified as path?
     else:
         if not os.path.isfile(args.dest):
-            print('No manifest found at %s' % args.dest)
+            report('No manifest found at %s' % args.dest, silent)
             return
-        dl(args.dest, log=args.log, user_agent=args.useragent, verbose=args.verbose, cache=args.cache)
+        dl(args.dest, log=args.log, user_agent=args.useragent, verbose=args.verbose, cache=args.cache, silent=args.silent)
 
 
 if __name__ == '__main__':
