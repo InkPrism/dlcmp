@@ -145,7 +145,7 @@ def get_modpack(url, log=None, user_agent="-", verbose=False, cache=None, silent
         filename = posixpath.basename(dl_mp)
         report('Downloading ' + filename, silent)
     except urllib.error.HTTPError as e:
-        log_failed(e + ' - ' + url, log, silent)
+        log_failed(str(e.code) + ' - ' + url, log, silent)
         return
     try:
         with open(filename, "wb") as f:
@@ -165,35 +165,13 @@ def get_modpack(url, log=None, user_agent="-", verbose=False, cache=None, silent
         log_failed('To not go at risk of destroying data, the procedure will be stopped.', log, silent)
         return
     # Create the Dir
-    try:
-        os.makedirs(str(Path(dirname)))
-    except OSError as e:
-        log_failed(e, log, silent)
-        log_failed('Unable to create ' + str(dirname), log, silent)
-        return
-    try:
-        # Unzip the retrieved file
-        zip_ref = zipfile.ZipFile(filename, 'r')
-        zip_ref.extractall(str(Path(dirname)))
-        zip_ref.close()
-    except FileNotFoundError as e:
-        log_failed(e, log, silent)
-        return
-    except zipfile.BadZipFile as e:
-        log_failed(e, log, silent)
-        return
-    except:
-        log_failed('Unable to extract files from ' + str(filename), log, silent)
-        return
-    try:
-        # Delete the retrieved file
-        os.remove(filename)
-    except FileNotFoundError as e:
-        log_failed(e, log, silent)
-        log_failed('Still attempting to read \'manifest.json\'', log, silent)
-    except OSError as e:
-        log_failed(e, log, silent)
-        log_failed('Unable to remove ' + str(filename), log, silent)
+    os.makedirs(str(Path(dirname)))
+    # Unzip the retrieved file
+    zip_ref = zipfile.ZipFile(filename, 'r')
+    zip_ref.extractall(str(Path(dirname)))
+    zip_ref.close()
+    # Delete the retrieved file
+    os.remove(filename)
     # And now go and download the files
     dl(Path(dirname, 'manifest.json'), log=log, user_agent=user_agent, verbose=verbose, cache=cache, silent=silent)
 
