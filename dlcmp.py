@@ -190,12 +190,12 @@ def main():
     parser.add_argument("--silent", dest='silent', help="no output to cli", action='store_true', default=False)
     args, unknown = parser.parse_known_args()
     if args.verbose:
-        report('Log: ' + str(args.log), silent)
-        report('User-Agent: ' + str(args.useragent), silent)
+        report('Log: ' + str(args.log), args.silent)
+        report('User-Agent: ' + str(args.useragent), args.silent)
     if args.dest is None:
         if not args.silent:
             parser.print_usage()
-        report('No positional argument found. Aborting.', silent)
+        report('No positional argument found. Aborting.', args.silent)
         return
     # Test, if it is a url (with bad regex) and not specified as path (or if it is specified as url)
     match = re.match(r'^(?:(?:http|ftp)s?://).*$', args.dest, re.IGNORECASE)
@@ -204,7 +204,7 @@ def main():
     # Specified as path?
     else:
         if not os.path.isfile(args.dest):
-            report('No manifest found at %s' % args.dest, silent)
+            report('No manifest found at %s' % args.dest, args.silent)
             return
         dl(args.dest, log=args.log, user_agent=args.useragent, verbose=args.verbose, cache=args.cache, silent=args.silent)
 
