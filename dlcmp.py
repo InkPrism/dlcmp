@@ -167,9 +167,8 @@ def get_modpack(url, log=None, user_agent="-", verbose=False, cache=None, silent
     # Create the Dir
     os.makedirs(str(Path(dirname)))
     # Unzip the retrieved file
-    zip_ref = zipfile.ZipFile(filename, 'r')
-    zip_ref.extractall(str(Path(dirname)))
-    zip_ref.close()
+    with zipfile.ZipFile(filename, 'r') as zip_ref:
+        zip_ref.extractall(str(Path(dirname)))
     # Delete the retrieved file
     os.remove(filename)
     # And now go and download the files
