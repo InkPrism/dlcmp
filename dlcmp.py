@@ -74,7 +74,7 @@ def dl(manifest, log=None, user_agent="-", verbose=False, cache=None, silent=Fal
             cachepath = Path(cache)
             cachedl = True
         else:
-            log_failed(str(cache) + " is no directory or cannot be accessed as such. Continuing without cache.", log, silent)
+            report(str(cache) + " is no directory or cannot be accessed as such. Continuing without cache.", silent)
 
     # The magic...
     for dependency in manifestjson['files']:
@@ -151,8 +151,8 @@ def get_modpack(url, log=None, user_agent="-", verbose=False, cache=None, silent
         with open(filename, "wb") as f:
             f.write(resp)
     except (OSError, IOError) as e:
-        log_failed(e, log, silent)
-        log_failed('Unable to write data from ' + str(url) + ' to ' + str(filename), log, silent)
+        report(e, silent)
+        report('Unable to write data from ' + str(url) + ' to ' + str(filename), silent)
         return
     # Create new dir for extracted files
     dirname = filename
@@ -161,8 +161,8 @@ def get_modpack(url, log=None, user_agent="-", verbose=False, cache=None, silent
         dirname = dirname[:-4]
     # If Dir already exist
     if os.path.isdir(str(Path(dirname))):
-        log_failed('Dir ' + str(dirname) + ' already exists.', log, silent)
-        log_failed('To not go at risk of destroying data, the procedure will be stopped.', log, silent)
+        report('Dir ' + str(dirname) + ' already exists.', silent)
+        report('To not go at risk of destroying data, the procedure will be stopped.', silent)
         return
     # Create the Dir
     os.makedirs(str(Path(dirname)))
@@ -184,7 +184,7 @@ def main():
     parser.add_argument("--path", "--prefer-path", dest='prefer_path', help="positional argument will be handled as a path", action='store_true', default=False)
     parser.add_argument("--ua", "--user-agent", metavar='user-agent-string', dest='useragent', help="User-Agent String", default='Mozilla/5.0 (Windows NT 6.1; WOW64; rv:37.0) Gecko/20100101 Firefox/37.0')  # http://techblog.willshouse.com/2012/01/03/most-common-user-agents/
     parser.add_argument("-v", "--verbose", dest='verbose', help="show verbose information", action='store_true', default=False)
-    parser.add_argument("-l", "--log", dest='log', metavar='logfile', help="log failed requests (and some other stuff)", default=None)
+    parser.add_argument("-l", "--log", dest='log', metavar='logfile', help="log failed requests", default=None)
     parser.add_argument("-c", "--cache", dest='cache', metavar='cachedir', help='path to cache directory')
     parser.add_argument("--silent", dest='silent', help="no output to cli", action='store_true', default=False)
     args, unknown = parser.parse_known_args()
