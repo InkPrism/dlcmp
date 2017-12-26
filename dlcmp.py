@@ -180,14 +180,14 @@ def main():
     import re
     parser = argparse.ArgumentParser(description="dlcmp - download utility for curse mod packs")
     arg = parser.add_argument
-    arg("dest", metavar='destination', nargs='?', help="url or path (e.g. 'https://minecraft.curseforge.com/projects/invasion/files/2447205' or 'path/2/manifest.json')", default=None)
-    arg("--url", "--prefer-url", dest='prefer_url', help="positional argument will be handled as an URL", action='store_true', default=False)
-    arg("--path", "--prefer-path", dest='prefer_path', help="positional argument will be handled as a path", action='store_true', default=False)
+    arg("dest", metavar='destination', nargs='?', help="url or path (e.g. 'https://minecraft.curseforge.com/projects/invasion/files/2447205' or 'path/2/manifest.json')")
+    arg("--url", "--prefer-url", dest='prefer_url', help="positional argument will be handled as an URL", action='store_true')
+    arg("--path", "--prefer-path", dest='prefer_path', help="positional argument will be handled as a path", action='store_true')
     arg("--ua", "--user-agent", metavar='user-agent-string', dest='useragent', help="User-Agent String", default='Mozilla/5.0 (Windows NT 6.1; WOW64; rv:37.0) Gecko/20100101 Firefox/37.0')  # http://techblog.willshouse.com/2012/01/03/most-common-user-agents/
-    arg("-v", "--verbose", dest='verbose', help="show verbose information", action='store_true', default=False)
+    arg("-v", "--verbose", dest='verbose', help="show verbose information", action='store_true')
     arg("-l", "--log", dest='log', metavar='logfile', help="log failed requests")
     arg("-c", "--cache", dest='cache', metavar='cachedir', help='path to cache directory')
-    arg("--silent", dest='silent', help="no output to cli", action='store_true', default=False)
+    arg("--silent", dest='silent', help="no output to cli", action='store_true')
     args, unknown = parser.parse_known_args()
     if args.verbose:
         _report('Log: ' + str(args.log), args.silent)
