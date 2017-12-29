@@ -22,8 +22,8 @@
 * All failed requests will be noted in a logfile
 	* ```$ dlcmp.py -l path/2/logfile ...```
 * Use ```--silent``` to silence output to the command line
-* Use ```--ua``` to specify an user agent string
-* Use ```-v``` to view verbose information
+* ```--ua useragentstring``` specifies an user agent string
+* ```-v``` shows verbose information
 * If the file already exists, it will not be downloaded again  
 * No dependencies other than the [Python Standard Library](https://docs.python.org/library/ "Python Standard Library")
 * single file
