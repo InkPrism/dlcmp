@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+"""download utility for curse mod packs"""
 
 from pathlib import Path
 import os
@@ -200,13 +201,13 @@ def main():
             parser.print_usage()
         _report('No positional argument found. Aborting.', args.silent)
         return
-    #targetdir given?
+    # targetdir given?
     if args.targetdir is not None:
         # args.targetdir must be a dir
         if not os.path.isdir(args.targetdir):
             _report(args.targetdir + ' is not a directory. Aborting', args.silent)
             return
-    # targetdir is None -> use current working directory 
+    # targetdir is None -> use current working directory
     else:
         args.targetdir = ""
     # Test, if it is a url (with bad regex) and not specified as path (or if it is specified as url)
