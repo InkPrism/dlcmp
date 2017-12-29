@@ -10,6 +10,7 @@
 ### Features
 * Download mod pack archive and download the mods from the manifest.json  
 	* ```$  dlcmp.py https://minecraft.curseforge.com/projects/invasion/files/2447205```
+	* Use ```-o path/2/outputdir/``` to specify the output directory
 * Download mods from already unzipped manifest  
 	* ```$  dlcmp.py path/2/manifest.json```
 * Normally, dlcmp will be able to distinguish between the two, yet if there are issues, one can use:
