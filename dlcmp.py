@@ -128,7 +128,7 @@ def dl(manifest, log=None, user_agent="-", verbose=False, cache=None, silent=Fal
     return
 
 
-def get_modpack(url, log=None, user_agent="-", verbose=False, cache=None, silent=False):
+def get_modpack(url, targetdir="", log=None, user_agent="-", verbose=False, cache=None, silent=False):
     import zipfile
     _report('\n[*] ' + str(url), silent)
     _report('Starting download...', silent)
@@ -147,6 +147,8 @@ def get_modpack(url, log=None, user_agent="-", verbose=False, cache=None, silent
     except urllib.error.HTTPError as e:
         _log_failed(str(e.code) + ' - ' + url, log, silent)
         return
+    # Add targetdir to path (e.g. file1 -> path/2/file1)
+    filename = str(Path(targetdir, filename))
     try:
         with open(filename, "wb") as f:
             f.write(resp)
@@ -160,15 +162,15 @@ def get_modpack(url, log=None, user_agent="-", verbose=False, cache=None, silent
     if filename.endswith('.zip'):
         dirname = dirname[:-4]
     # If Dir already exist
-    if os.path.isdir(str(Path(dirname))):
+    if os.path.isdir(dirname):
         _report('Dir ' + str(dirname) + ' already exists.', silent)
         _report('To not go at risk of destroying data, the procedure will be stopped.', silent)
         return
     # Create the Dir
-    os.makedirs(str(Path(dirname)))
+    os.makedirs(dirname)
     # Unzip the retrieved file
     with zipfile.ZipFile(filename, 'r') as zip_ref:
-        zip_ref.extractall(str(Path(dirname)))
+        zip_ref.extractall(dirname)
     # Delete the retrieved file
     os.remove(filename)
     # And now go and download the files
@@ -181,6 +183,7 @@ def main():
     parser = argparse.ArgumentParser(description="dlcmp - download utility for curse mod packs")
     arg = parser.add_argument
     arg("dest", metavar='destination', nargs='?', help="url or path (e.g. 'https://minecraft.curseforge.com/projects/invasion/files/2447205' or 'path/2/manifest.json')")
+    arg("-o", "--output",  metavar='output directory', dest="targetdir", help="specify working directory")
     arg("--url", "--prefer-url", dest='prefer_url', help="positional argument will be handled as an URL", action='store_true')
     arg("--path", "--prefer-path", dest='prefer_path', help="positional argument will be handled as a path", action='store_true')
     arg("--ua", "--user-agent", metavar='user-agent-string', dest='useragent', help="User-Agent String", default='Mozilla/5.0 (Windows NT 6.1; WOW64; rv:37.0) Gecko/20100101 Firefox/37.0')  # http://techblog.willshouse.com/2012/01/03/most-common-user-agents/
@@ -197,10 +200,19 @@ def main():
             parser.print_usage()
         _report('No positional argument found. Aborting.', args.silent)
         return
+    #targetdir given?
+    if args.targetdir is not None:
+        # args.targetdir must be a dir
+        if not os.path.isdir(args.targetdir):
+            _report(args.targetdir + ' is not a directory. Aborting', args.silent)
+            return
+    # targetdir is None -> use current working directory 
+    else:
+        args.targetdir = ""
     # Test, if it is a url (with bad regex) and not specified as path (or if it is specified as url)
     match = re.match(r'^(?:(?:http|ftp)s?://).*$', args.dest, re.IGNORECASE)
     if match and not args.prefer_path or args.prefer_url:
-        get_modpack(args.dest, log=args.log, user_agent=args.useragent, verbose=args.verbose, cache=args.cache, silent=args.silent)
+        get_modpack(args.dest, targetdir=args.targetdir, log=args.log, user_agent=args.useragent, verbose=args.verbose, cache=args.cache, silent=args.silent)
     # Specified as path?
     else:
         if not os.path.isfile(args.dest):
