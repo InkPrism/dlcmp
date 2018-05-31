@@ -105,7 +105,7 @@ def dl(manifest, log=None, user_agent="-", verbose=False, cache=None, silent=Fal
         getrd = projectresp.geturl()
         path = urllib.parse.urlsplit(getrd).path
         filename = posixpath.basename(path)
-        filename = filename.replace('%20', ' ')
+        filename = urllib.parse.unquote(filename)
         # Retrieve and write file
         _report('[' + str(currF) + '/' + str(allF) + '] ' + str(filename), silent, end='')
         # Get file size from header if verbose is true
@@ -142,7 +142,7 @@ def get_modpack(url, targetdir="", log=None, user_agent="-", verbose=False, cach
         resp = dl_mp.read()
         # Get the name for the file by getting the redirect from '/download' to 'something/something.extenshion'
         dl_mp = dl_mp.geturl()
-        dl_mp = dl_mp.replace("%20", " ")
+        dl_mp = urllib.parse.unquote(dl_mp)
         filename = posixpath.basename(dl_mp)
         _report('Downloading ' + filename, silent)
     except urllib.error.HTTPError as e:
